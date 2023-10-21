@@ -72,6 +72,7 @@
       devShells.default = pkgs.mkShell {
         buildInputs = [
           caqti-eio
+          caqti-lwt
           cmdliner
           fmt
           logs
