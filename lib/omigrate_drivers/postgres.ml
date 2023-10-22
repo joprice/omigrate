@@ -39,7 +39,7 @@ module T = struct
             database)
     in
     let uri =
-      Uri.make ~host ~port
+      Uri.make ~scheme:"postgresql" ~host ~port
         ~userinfo:(user ^ ":" ^ password)
         ?path:(database |> Option.map (fun database -> "/" ^ database))
         ()
@@ -75,7 +75,14 @@ module T = struct
         let* () =
           Logs_lwt.info (fun m -> m "Applying up migration %Ld" version)
         in
-        let* _ = execute db migration.Omigrate.Migration.up in
+        let* () =
+          let statements =
+            String.split_on_char ';' migration.Omigrate.Migration.up
+            |> List.map String.trim
+            |> List.filter (fun line -> String.length line > 0)
+          in
+          statements |> Lwt_list.iter_s (execute db)
+        in
         let* () =
           Logs_lwt.debug (fun m ->
               m "Inserting version %Ld in migration table" version)
@@ -124,7 +131,7 @@ module T = struct
     let open Lwt.Syntax in
     let* () =
       recover
-      @@ with_conn ~host ~port ?user ?password
+      @@ with_conn ~host ~port ?user ?password ~database
            (fun ((module Db : Caqti_lwt.CONNECTION) as db) ->
              let* database_exists = database_exists ~conn:db database in
              if database_exists then

@@ -73,6 +73,7 @@
         buildInputs = [
           caqti-eio
           caqti-lwt
+          caqti-driver-postgresql
           cmdliner
           fmt
           logs
