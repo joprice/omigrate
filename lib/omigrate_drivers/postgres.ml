@@ -20,7 +20,6 @@ module T = struct
     in
     let query =
       (unit ->. unit)
-      (* Pgx_lwt_unix.execute_unit conn *)
       @@ "CREATE TABLE IF NOT EXISTS "
       ^ quote_statement migrations_table
       ^ "(version bigint NOT NULL, dirty boolean NOT NULL, CONSTRAINT \
@@ -67,6 +66,15 @@ module T = struct
   let execute (module Db : Caqti_lwt.CONNECTION) query =
     Db.exec ((unit ->. unit) @@ query) () |> recover
 
+  let split_statements migration =
+    String.split_on_char ';' migration
+    |> List.map String.trim
+    |> List.filter (fun line -> String.length line > 0)
+
+  let run_statements db migration =
+    let statements = split_statements migration in
+    statements |> Lwt_list.iter_s (execute db)
+
   let up ~host ?(port = default_port) ?user ?password ~database migration =
     let open Lwt.Syntax in
     with_transaction ~host ~port ?user ?password ~database
@@ -75,14 +83,7 @@ module T = struct
         let* () =
           Logs_lwt.info (fun m -> m "Applying up migration %Ld" version)
         in
-        let* () =
-          let statements =
-            String.split_on_char ';' migration.Omigrate.Migration.up
-            |> List.map String.trim
-            |> List.filter (fun line -> String.length line > 0)
-          in
-          statements |> Lwt_list.iter_s (execute db)
-        in
+        let* () = run_statements db migration.Omigrate.Migration.up in
         let* () =
           Logs_lwt.debug (fun m ->
               m "Inserting version %Ld in migration table" version)
@@ -108,7 +109,7 @@ module T = struct
            let* () =
              Logs_lwt.info (fun m -> m "Applying down migration %Ld" version)
            in
-           let* _ = execute db migration.Omigrate.Migration.down in
+           let* () = run_statements db migration.Omigrate.Migration.down in
            let* () =
              Logs_lwt.debug (fun m ->
                  m "Removing version %Ld from migration table" version)

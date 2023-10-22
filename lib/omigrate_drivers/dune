@@ -1,7 +1,7 @@
 (library
  (name omigrate_postgres)
  (public_name omigrate.postgres)
- (libraries omigrate logs pgx caqti-lwt caqti-lwt.unix caqti-driver-postgresql)
+ (libraries omigrate logs caqti-lwt caqti-lwt.unix caqti-driver-postgresql)
  (modules postgres)
  (flags
   (:standard -linkall)))
