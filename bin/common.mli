@@ -1,6 +1,7 @@
 val term : int Cmdliner.Term.t
 val handle_errors : (unit, Omigrate.Error.t) Result.t -> int
 val database_arg : string Cmdliner.Term.t
+val admin_db_arg : (string option) Cmdliner.Term.t
 val source_arg : string Cmdliner.Term.t
 val force_arg : bool Cmdliner.Term.t
 val envs : Cmdliner.Cmd.Env.info list

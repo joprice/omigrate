@@ -79,17 +79,20 @@ let down ?(force = false) ~source ~database () =
            (Lwt.return ())
       |> Lwt_result.ok)
 
-let create ~database =
+let create ?admin_db ~database () =
   with_driver database ~f:(fun (module Driver) conninfo ->
       Driver.create ~host:conninfo.Connection.host
         ?port:conninfo.Connection.port ?user:conninfo.Connection.user
-        ?password:conninfo.Connection.pass conninfo.Connection.db
+        ?password:conninfo.Connection.pass 
+        ?admin_db:admin_db
+        conninfo.Connection.db
       |> Lwt_result.ok)
 
-let drop ~database =
+let drop ?admin_db ~database () =
   with_driver database ~f:(fun (module Driver) conninfo ->
       Driver.drop ~host:conninfo.Connection.host ?port:conninfo.Connection.port
         ?user:conninfo.Connection.user ?password:conninfo.Connection.pass
+        ?admin_db:admin_db
         conninfo.Connection.db
       |> Lwt_result.ok)
 

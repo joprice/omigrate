@@ -1,7 +1,7 @@
-let run ~force ~source ~database =
+let run ?admin_db ~force ~source ~database () =
   let open Lwt_result.Syntax in
   let lwt =
-    let* () = Omigrate.create ~database in
+    let* () = Omigrate.create ?admin_db ~database () in
     Omigrate.up ~force ~source ~database ()
   in
   Lwt_main.run lwt
@@ -30,7 +30,8 @@ let term =
   let+ _term = Common.term
   and+ source = Common.source_arg
   and+ database = Common.database_arg
+  and+ admin_db = Common.admin_db_arg
   and+ force = Common.force_arg in
-  run ~force ~source ~database |> Common.handle_errors
+  run ?admin_db ~force ~source ~database () |> Common.handle_errors
 
 let cmd = Cmd.v info term

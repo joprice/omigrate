@@ -29,6 +29,7 @@ module type S = sig
     unit Lwt.t
 
   val create :
+    ?admin_db:string ->
     host:string ->
     ?port:int ->
     ?user:string ->
@@ -37,6 +38,7 @@ module type S = sig
     unit Lwt.t
 
   val drop :
+    ?admin_db:string ->
     host:string ->
     ?port:int ->
     ?user:string ->

@@ -128,11 +128,11 @@ module T = struct
                  ^ " (version, dirty) VALUES ($1, $2);")
                  (previous_version, false))
 
-  let create ~host ?(port = default_port) ?user ?password database =
+  let create ?admin_db ~host ?(port = default_port) ?user ?password database =
     let open Lwt.Syntax in
     let* () =
       recover
-      @@ with_conn ~host ~port ?user ?password ~database
+      @@ with_conn ~host ~port ?user ?password ?database:admin_db
            (fun ((module Db : Caqti_lwt.CONNECTION) as db) ->
              let* database_exists = database_exists ~conn:db database in
              if database_exists then
@@ -150,10 +150,10 @@ module T = struct
            let+ () = ensure_version_table_exists ~db in
            Ok ())
 
-  let drop ~host ?(port = default_port) ?user ?password database =
+  let drop ?admin_db ~host ?(port = default_port) ?user ?password database =
     let open Lwt.Syntax in
     recover
-    @@ with_conn ~host ~port ?user ?password (fun conn ->
+    @@ with_conn ~host ~port ?user ?password ?database:admin_db (fun conn ->
            let* database_exists = database_exists ~conn database in
            if not database_exists then
              let+ () = Logs_lwt.info (fun m -> m "Database does not exists") in

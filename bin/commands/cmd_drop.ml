@@ -1,6 +1,6 @@
 (* open Omigrate *)
 
-let run ~database = Omigrate.drop ~database |> Lwt_main.run
+let run ?admin_db ~database () = Omigrate.drop ?admin_db ~database () |> Lwt_main.run
 
 (* Command line interface *)
 
@@ -18,7 +18,10 @@ let info = Cmd.info "drop" ~doc ~sdocs ~exits ~envs ~man
 
 let term =
   let open Common.Let_syntax in
-  let+ _term = Common.term and+ database = Common.database_arg in
-  run ~database |> Common.handle_errors
+  let+ _term = Common.term 
+  and+ database = Common.database_arg 
+  and+ admin_db = Common.admin_db_arg
+  in
+  run ?admin_db ~database () |> Common.handle_errors
 
 let cmd = Cmd.v info term

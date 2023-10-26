@@ -18,6 +18,14 @@ let source_arg =
     & opt (some string) None
     & info [ "source"; "s" ] ~docv:"SOURCE" ~doc ~env)
 
+let admin_db_arg =
+  let doc = "The database to use for database creation and deletion" in
+  let env = Cmd.Env.info "OMIGRATE_ADMIN_DATABASE" ~doc in
+  Arg.(
+    value
+    & opt (some string) None
+    & info [ "admin_database" ] ~docv:"ADMIN_DATABASE" ~doc ~env)
+
 let database_arg =
   let doc = "The database to run the migrations on." in
   let env = Cmd.Env.info "OMIGRATE_DATABASE" ~doc in

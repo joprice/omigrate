@@ -209,7 +209,7 @@ module T = struct
             in
             Lwt.return_unit)
 
-  let create ~host:_ ?port:_ ?user:_ ?password:_ database =
+  let create ?admin_db:_ ~host:_ ?port:_ ?user:_ ?password:_ database =
     let open Lwt.Syntax in
     let* exists = database_exists database in
     let t = ref None in
@@ -223,7 +223,7 @@ module T = struct
     let t = Option.value !t ~default:(Db.create ~mode:`NO_CREATE database) in
     ensure_version_table_exists t
 
-  let drop ~host:_ ?port:_ ?user:_ ?password:_ database =
+  let drop ?admin_db:_ ~host:_ ?port:_ ?user:_ ?password:_ database =
     let open Lwt.Syntax in
     let* exist = database_exists database in
     if not exist then Logs_lwt.info (fun m -> m "Database does not exist")
