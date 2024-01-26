@@ -69,7 +69,10 @@ module T = struct
   let split_statements migration =
     String.split_on_char ';' migration
     |> List.map String.trim
-    |> List.filter (fun line -> String.length line > 0)
+    |> List.filter (fun line ->
+        (* NOTE: this is very basic comment handling, e.g. doesn't account for trailing *)
+        String.length line > 0 && not (String.starts_with ~prefix:"--" line)
+    )
 
   let run_statements db migration =
     let statements = split_statements migration in
